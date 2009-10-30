@@ -2,11 +2,13 @@
 // vim: exandtab softabstop=4 tabstop=4 shiftwidth=4
 
 /**
- * Erskine Design ImageResizer
+ * Erskine Design ImageResizer (PHP5 only)
  * 
  * @package     ED_ImageResizer
- * @author      Erskine Design
  * @version     2.0.5
+ * @author      Glen Swinfield (Erskine Design)
+ * @copyright   Copyright (c) 2009 Erskine Design
+ * @license     http://creativecommons.org/licenses/by-sa/3.0/ Attribution-Share Alike 3.0 Unported
  * 
  */
 $plugin_info = array(   'pi_name'           => 'ED Image Resizer',
