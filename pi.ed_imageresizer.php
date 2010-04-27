@@ -5,14 +5,14 @@
  * Erskine Design ImageResizer (PHP5 only)
  * 
  * @package     ED_ImageResizer
- * @version     2.0.5
+ * @version     2.1.0
  * @author      Glen Swinfield (Erskine Design)
  * @copyright   Copyright (c) 2009 Erskine Design
  * @license     http://creativecommons.org/licenses/by-sa/3.0/ Attribution-Share Alike 3.0 Unported
  * 
  */
 $plugin_info = array(   'pi_name'           => 'ED Image Resizer',
-                        'pi_version'        => '2.0.5',
+                        'pi_version'        => '2.1.0',
                         'pi_author'         => 'Erskine Design',
                         'pi_author_url'     => 'http://github.com/erskinedesign/ED-Imageresizer',
                         'pi_description'    => 'Resizes and caches images on the fly',
@@ -28,7 +28,7 @@ if ( ! class_exists('Typography')) {
  * 
  * @package     ED_ImageResizer
  * @author      Erskine Design
- * @version     2.0.5
+ * @version     2.1.0
  * 
  */
 Class Ed_imageresizer
@@ -91,7 +91,20 @@ Class Ed_imageresizer
         $this->default_image  = (string) html_entity_decode($TMPL->fetch_param('default'));
         $this->href_only      = $TMPL->fetch_param('href_only');
         $this->debug          = $TMPL->fetch_param('debug') != 'yes' ? false : true;
-        
+        $this->grayscale      = $TMPL->fetch_param('grayscale') != 'yes' ? false : true;
+
+        // LOW EDIT: Get server and cache paths from config file
+        if ( ! $this->server_path )
+        {
+            $this->server_path = $PREFS->ini('ed_server_path');
+        }
+
+        if ( ! $this->cache_path )
+        {
+            $this->cache_path = $PREFS->ini('ed_cache_path');
+        }
+        // END LOW EDIT
+
         $error_string = '<div style="background:#f00; color:#fff; font:bold 11px verdana; padding:12px; border:2px solid #000">%s</div>';
 
         if( $this->cache_path == '' || $this->server_path == '' ) {
@@ -188,7 +201,7 @@ Class Ed_imageresizer
         }
     
         // generate cached filename
-        $this->resized = $this->cache_path . sha1($this->image . $this->forceWidth . $this->forceHeight . $this->color . $this->maxWidth . $this->maxHeight . $this->cropratio).$this->ext;
+        $this->resized = $this->cache_path . sha1($this->image . $this->forceWidth . $this->forceHeight . $this->color . $this->maxWidth . $this->maxHeight . $this->cropratio . $this->grayscale).$this->ext;
 
         // is already cached?
         if (file_exists($this->resized)) {
@@ -341,6 +354,12 @@ Class Ed_imageresizer
         
         // Resample the original image into the resized canvas we set up earlier
         ImageCopyResampled($this->dst, $this->src, 0, 0, $this->offsetX, $this->offsetY, $this->tnWidth, $this->tnHeight, $this->width, $this->height);
+        
+        // try to grayscale it
+        if ($this->grayscale == 'yes'){
+            $this->dst = $this->_makeGrayscale($this->dst);
+        }
+        
         $this->etag = $this->_saveFile();
     }
     
@@ -354,6 +373,20 @@ Class Ed_imageresizer
         ImageDestroy($this->src);
         ImageDestroy($this->dst);
 
+    }
+    
+    private function _makeGrayscale($im) {
+        if (imageistruecolor($im)) {
+            imagetruecolortopalette($im, false, 256);
+        }
+
+        for ($c = 0; $c < imagecolorstotal($im); $c++) {
+            $col = imagecolorsforindex($im, $c);
+            $gray = round(0.299 * $col['red'] + 0.587 * $col['green'] + 0.114 * $col['blue']);
+            imagecolorset($im, $c, $gray, $gray, $gray);
+        }
+
+        return $im;
     }
 
     /**
