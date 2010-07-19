@@ -175,6 +175,11 @@ Class Ed_imageresizer
             return array(false, 'fatal', 'The image does not exist. Server path: '.$this->server_path . $this->image);
         }
         
+        // Sometimes a directory can be passed by accident instead of an image
+        if(is_dir($this->server_path . $this->image)) {
+            return array(false, 'fatal', 'The path specified was a directory, not an image: '.$this->server_path . $this->image);
+        }
+        
         // Get the size and MIME type of the requested image
         $this->size        = GetImageSize($this->server_path . $this->image);
         $this->mime        = $this->size['mime'];
