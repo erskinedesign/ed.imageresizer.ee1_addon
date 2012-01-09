@@ -447,15 +447,6 @@ Class Ed_imageresizer
 	ob_start(); 
 	?>
 
-** You must add the server and cache dir paths to the class variables in the plugin file! **
-
-Example:
----------
-
-// ADD PATHS TO YOUR WEB ROOT AND CACHE FOLDER HERE
-private $server_path        = '/this/is/my/website/root/folder';                    // no trailing slash
-private $cache_path         = '/this/is/my/website/root/folder/and/image/cache/';   // with trailing slash
-
 Paramaters:
 ----------
 * image         ~ the file to resize, will parse file dirs
